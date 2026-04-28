@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -12,24 +11,23 @@
 <link rel="apple-touch-icon" href="icon.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap');
-  :root {
-    --bg:#0f1923; --surface:#1a2535; --card:#212f45; --border:#2e4060;
-    --accent:#f7c948; --correct:#4cde7b; --wrong:#ff5c6e;
-    --text:#e8f0fe; --muted:#7a91b0;
-  }
+  :root{--bg:#0f1923;--surface:#1a2535;--card:#212f45;--border:#2e4060;--accent:#f7c948;--correct:#4cde7b;--wrong:#ff5c6e;--text:#e8f0fe;--muted:#7a91b0;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px;background-image:radial-gradient(ellipse at 20% 0%,rgba(247,201,72,.07) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(76,222,123,.06) 0%,transparent 60%);}
   h1{font-size:clamp(1.4rem,4vw,2rem);font-weight:900;letter-spacing:.05em;color:var(--accent);text-shadow:0 0 30px rgba(247,201,72,.4);margin-bottom:4px;}
   .subtitle{color:var(--muted);font-size:.82rem;margin-bottom:28px;}
+
   .tc-ノーマル{background:#9ba09e;} .tc-ほのお{background:#f9734a;} .tc-みず{background:#4d9be6;}
   .tc-でんき{background:#f7c948;color:#333;} .tc-くさ{background:#5da95d;} .tc-こおり{background:#72cfc0;}
   .tc-かくとう{background:#d05040;} .tc-どく{background:#a75ec1;} .tc-じめん{background:#d6b360;color:#333;}
   .tc-ひこう{background:#8fa8d8;} .tc-エスパー{background:#f85888;} .tc-むし{background:#91c121;color:#333;}
   .tc-いわ{background:#b8a148;color:#333;} .tc-ゴースト{background:#705898;} .tc-ドラゴン{background:#6050c8;}
   .tc-あく{background:#50413c;} .tc-はがね{background:#6abde0;color:#333;} .tc-フェアリー{background:#f4b8e6;color:#333;}
+
   .mode-toggle{display:flex;margin-bottom:16px;border:1px solid var(--border);border-radius:10px;overflow:hidden;width:fit-content;}
   .mode-btn{padding:8px 20px;font-size:.85rem;font-weight:700;font-family:inherit;background:none;border:none;color:var(--muted);cursor:pointer;transition:background .15s,color .15s;}
   .mode-btn.active{background:var(--accent);color:#1a1a1a;}
+
   #setup{width:100%;max-width:680px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 22px 18px;}
   #setup h2{font-size:.95rem;color:var(--muted);font-weight:700;margin-bottom:14px;}
   .type-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
@@ -39,8 +37,56 @@
   .btn-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
   .btn-sm{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:8px;font-size:.78rem;font-family:inherit;cursor:pointer;transition:background .15s,color .15s;}
   .btn-sm:hover{background:var(--border);color:var(--text);}
+  .btn-chart{background:none;border:1px solid var(--accent);color:var(--accent);padding:7px 16px;border-radius:8px;font-size:.82rem;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:14px;transition:background .15s;}
+  .btn-chart:hover{background:rgba(247,201,72,.12);}
   .btn-start{margin-left:auto;background:var(--accent);color:#1a1a1a;border:none;padding:10px 28px;border-radius:10px;font-size:.95rem;font-weight:900;font-family:inherit;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 4px 16px rgba(247,201,72,.3);}
-  .btn-start:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(247,201,72,.45);}
+  .btn-start:hover{transform:translateY(-2px);}
+
+  /* overlay */
+  #chartOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;overflow:auto;padding:16px 6px 40px;}
+  .chart-wrap{max-width:900px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 10px 18px;position:relative;}
+  .chart-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;z-index:2;}
+  .chart-title{font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:10px;text-align:center;}
+  .chart-legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;font-size:.7rem;}
+  .legend-item{display:flex;align-items:center;gap:5px;}
+  .legend-box{width:14px;height:14px;border-radius:3px;}
+
+  /* table */
+  .chart-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table.ct{border-collapse:collapse;table-layout:fixed;}
+  table.ct th,table.ct td{padding:0;border:1px solid rgba(255,255,255,.07);}
+
+  /* corner */
+  th.corner{width:54px;min-width:54px;height:54px;background:transparent;border:none;position:relative;}
+  th.corner::after{content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(255,255,255,.15) calc(50% - .5px),rgba(255,255,255,.15) calc(50% + .5px),transparent calc(50% + .5px));}
+  th.corner .c-atk{position:absolute;bottom:4px;left:5px;font-size:.5rem;color:var(--muted);}
+  th.corner .c-def{position:absolute;top:4px;right:5px;font-size:.5rem;color:var(--muted);}
+
+  /* defense header (column) */
+  th.hdr-def{width:28px;min-width:28px;height:54px;vertical-align:bottom;padding:3px 2px;}
+  th.hdr-def .hdr-inner{writing-mode:vertical-rl;font-size:.62rem;font-weight:700;color:#fff;padding:3px 3px;border-radius:4px;display:inline-block;white-space:nowrap;}
+
+  /* attack header (row) */
+  th.hdr-atk{width:54px;min-width:54px;height:28px;text-align:right;padding:2px 4px;}
+  th.hdr-atk .hdr-inner{font-size:.62rem;font-weight:700;color:#fff;padding:2px 5px;border-radius:4px;display:inline-block;white-space:nowrap;}
+
+  /* data cells */
+  td.cell{width:28px;min-width:28px;height:28px;text-align:center;vertical-align:middle;font-size:.75rem;font-weight:900;cursor:default;transition:filter .1s;}
+  td.cell.eff2 {background:rgba(76,222,123,.28);color:#4cde7b;}
+  td.cell.eff05{background:rgba(247,180,60,.22);color:#f7b43c;}
+  td.cell.eff0 {background:rgba(255,92,110,.28);color:#ff5c6e;}
+  td.cell.eff1 {background:rgba(255,255,255,.03);color:rgba(255,255,255,.18);}
+
+  /* highlight on hover via JS class */
+  td.cell.hl-row,td.cell.hl-col{filter:brightness(1.6);outline:1px solid rgba(255,255,255,.4);}
+  td.cell.hl-both{filter:brightness(2);outline:2px solid #fff;z-index:1;position:relative;}
+  th.hl-hdr .hdr-inner{outline:2px solid #fff;border-radius:4px;}
+
+  /* dim non-selected */
+  tr.row-dim td.cell,tr.row-dim th.hdr-atk{opacity:.12;}
+  td.col-dim,th.col-dim{opacity:.12;}
+
+  /* quiz */
   #quiz{width:100%;max-width:560px;display:none;}
   .progress-bar-wrap{width:100%;height:6px;background:var(--border);border-radius:3px;margin-bottom:20px;overflow:hidden;}
   .progress-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease;}
@@ -64,12 +110,14 @@
   .feedback.wrong{color:var(--wrong);}
   .btn-next{width:100%;padding:13px;background:var(--accent);color:#1a1a1a;border:none;border-radius:12px;font-size:1rem;font-weight:900;font-family:inherit;cursor:pointer;margin-top:12px;transition:transform .12s;display:none;}
   .btn-next:hover{transform:translateY(-2px);}
+
   #result{width:100%;max-width:520px;display:none;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 28px;text-align:center;}
   .result-score{font-size:4rem;font-weight:900;color:var(--accent);line-height:1;margin-bottom:6px;text-shadow:0 0 40px rgba(247,201,72,.5);}
   .result-label{color:var(--muted);font-size:.9rem;margin-bottom:24px;}
   .result-rank{font-size:1.6rem;margin-bottom:24px;}
   .btn-retry{background:var(--accent);color:#1a1a1a;border:none;padding:12px 36px;border-radius:12px;font-size:1rem;font-weight:900;font-family:inherit;cursor:pointer;transition:transform .12s;}
   .btn-retry:hover{transform:translateY(-2px);}
+
   @keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
   .pop{animation:pop .28s ease forwards;}
 </style>
@@ -86,10 +134,28 @@
   </div>
   <h2 id="filterLabel">絞り込む攻撃タイプを選ぶ</h2>
   <div class="type-grid" id="typeGrid"></div>
+  <button class="btn-chart" onclick="openChart()">📊 相性表を確認する</button>
   <div class="btn-row">
     <button class="btn-sm" onclick="selectAll(true)">すべて選択</button>
     <button class="btn-sm" onclick="selectAll(false)">すべて解除</button>
     <button class="btn-start" onclick="startQuiz()">スタート ▶</button>
+  </div>
+</div>
+
+<div id="chartOverlay" onclick="closeChartOutside(event)">
+  <div class="chart-wrap">
+    <button class="chart-close" onclick="closeChart()">✕</button>
+    <div class="chart-title">タイプ相性表　　セルにタッチで詳細表示</div>
+    <div class="chart-legend">
+      <div class="legend-item"><div class="legend-box" style="background:rgba(76,222,123,.5)"></div><span>○ 2倍</span></div>
+      <div class="legend-item"><div class="legend-box" style="background:rgba(247,180,60,.45)"></div><span>△ ½倍</span></div>
+      <div class="legend-item"><div class="legend-box" style="background:rgba(255,92,110,.5)"></div><span>× 無効</span></div>
+      <div class="legend-item"><div class="legend-box" style="background:rgba(255,255,255,.06)"></div><span>－ 等倍</span></div>
+    </div>
+    <div id="cellInfo" style="text-align:center;min-height:22px;font-size:.78rem;color:var(--accent);font-weight:700;margin-bottom:8px;"></div>
+    <div class="chart-table-wrap">
+      <table class="ct" id="chartTable"></table>
+    </div>
   </div>
 </div>
 
@@ -122,10 +188,10 @@
 </div>
 
 <script>
-var TYPES = ['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく',
-             'じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
+var TYPES=['ノーマル','ほのお','みず','でんき','くさ','こおり','かくとう','どく',
+           'じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
 
-var CHART = {
+var CHART={
   'ノーマル':  {'いわ':0.5,'ゴースト':0,'はがね':0.5},
   'ほのお':    {'ほのお':0.5,'みず':0.5,'くさ':2,'こおり':2,'むし':2,'いわ':0.5,'ドラゴン':0.5,'はがね':2},
   'みず':      {'ほのお':2,'みず':0.5,'くさ':0.5,'じめん':2,'いわ':2,'ドラゴン':0.5},
@@ -146,195 +212,256 @@ var CHART = {
   'フェアリー':{'かくとう':2,'ドラゴン':2,'あく':2,'ほのお':0.5,'どく':0.5,'はがね':0.5}
 };
 
-// 倍率を文字列キーとして扱う（0の判定ミスを防ぐ）
-var OPTIONS = [
-  { label:'×',  sub:'0倍（無効）',           key:'0'   },
-  { label:'△',  sub:'½倍（いまひとつ）',     key:'0.5' },
-  { label:'－',  sub:'１倍（ふつう）',         key:'1'   },
-  { label:'○',  sub:'２倍（こうかばつぐん）', key:'2'   }
+var OPTIONS=[
+  {label:'×',sub:'0倍（無効）',key:'0'},
+  {label:'△',sub:'½倍（いまひとつ）',key:'0.5'},
+  {label:'－',sub:'１倍（ふつう）',key:'1'},
+  {label:'○',sub:'２倍（こうかばつぐん）',key:'2'}
 ];
 
-function getMultKey(atk, def) {
-  var row = CHART[atk];
-  if (!row) return '1';
-  var v = row[def];
-  if (v === undefined) return '1';
-  return String(v);
+function getMultKey(atk,def){
+  var row=CHART[atk];if(!row)return'1';
+  var v=row[def];return(v===undefined)?'1':String(v);
 }
 
-var questions = [];
-var qIdx = 0;
-var score = 0;
-var answered = false;
-var quizMode = 'atk';
+var questions=[],qIdx=0,score=0,answered=false,quizMode='atk';
 
-// タイプ選択UI生成
-var grid = document.getElementById('typeGrid');
-for (var i = 0; i < TYPES.length; i++) {
-  var t = TYPES[i];
-  var inp = document.createElement('input');
-  inp.type = 'checkbox';
-  inp.className = 'type-toggle';
-  inp.id = 'chk-' + t;
-  inp.value = t;
-  inp.checked = true;
-  var lbl = document.createElement('label');
-  lbl.htmlFor = 'chk-' + t;
-  lbl.className = 'type-label tc-' + t;
-  lbl.textContent = t;
-  grid.appendChild(inp);
-  grid.appendChild(lbl);
+// build filter UI
+var grid=document.getElementById('typeGrid');
+for(var i=0;i<TYPES.length;i++){
+  (function(t){
+    var inp=document.createElement('input');
+    inp.type='checkbox';inp.className='type-toggle';inp.id='chk-'+t;inp.value=t;inp.checked=false;
+    inp.addEventListener('change',function(){if(document.getElementById('chartOverlay').style.display==='block')renderChart();});
+    var lbl=document.createElement('label');
+    lbl.htmlFor='chk-'+t;lbl.className='type-label tc-'+t;lbl.textContent=t;
+    grid.appendChild(inp);grid.appendChild(lbl);
+  })(TYPES[i]);
 }
 
-function setMode(m) {
-  quizMode = m;
-  document.getElementById('modeAtk').className = 'mode-btn' + (m === 'atk' ? ' active' : '');
-  document.getElementById('modeDef').className  = 'mode-btn' + (m === 'def' ? ' active' : '');
-  document.getElementById('filterLabel').textContent =
-    (m === 'atk') ? '絞り込む攻撃タイプを選ぶ' : '絞り込む防御タイプを選ぶ';
+function setMode(m){
+  quizMode=m;
+  document.getElementById('modeAtk').className='mode-btn'+(m==='atk'?' active':'');
+  document.getElementById('modeDef').className='mode-btn'+(m==='def'?' active':'');
+  document.getElementById('filterLabel').textContent=(m==='atk')?'絞り込む攻撃タイプを選ぶ':'絞り込む防御タイプを選ぶ';
+  if(document.getElementById('chartOverlay').style.display==='block')renderChart();
+}
+function selectAll(v){
+  for(var i=0;i<TYPES.length;i++)document.getElementById('chk-'+TYPES[i]).checked=v;
+  if(document.getElementById('chartOverlay').style.display==='block')renderChart();
+}
+function getChecked(){
+  var r=[];for(var i=0;i<TYPES.length;i++)if(document.getElementById('chk-'+TYPES[i]).checked)r.push(TYPES[i]);return r;
 }
 
-function selectAll(v) {
-  for (var i = 0; i < TYPES.length; i++) {
-    document.getElementById('chk-' + TYPES[i]).checked = v;
+// ── CHART ──────────────────────────────────────────────────
+// Store cell refs for hover highlight
+var cellMap={};  // cellMap[atkIdx][defIdx] = td
+var atkHdrMap={};// atkHdrMap[atkIdx] = th
+var defHdrMap={};// defHdrMap[defIdx] = th
+
+function renderChart(){
+  var selected=getChecked();
+  var tbl=document.getElementById('chartTable');
+  tbl.innerHTML='';
+  cellMap={};atkHdrMap={};defHdrMap={};
+
+  // ── thead: corner + defense headers ──
+  var thead=document.createElement('thead');
+  var hr=document.createElement('tr');
+
+  var corner=document.createElement('th');
+  corner.className='corner';
+  corner.innerHTML='<span class="c-def">防御→</span><span class="c-atk">↓攻撃</span>';
+  hr.appendChild(corner);
+
+  for(var d=0;d<TYPES.length;d++){
+    var def=TYPES[d];
+    var th=document.createElement('th');
+    th.className='hdr-def'+(quizMode==='def'&&selected.indexOf(def)===-1?' col-dim':'');
+    th.id='dhdr-'+d;
+    var inner=document.createElement('span');
+    inner.className='hdr-inner tc-'+def;
+    inner.textContent=def;
+    th.appendChild(inner);
+    defHdrMap[d]=th;
+    hr.appendChild(th);
+  }
+  thead.appendChild(hr);
+  tbl.appendChild(thead);
+
+  // ── tbody: attack rows ──
+  var tbody=document.createElement('tbody');
+  for(var a=0;a<TYPES.length;a++){
+    var atk=TYPES[a];
+    var tr=document.createElement('tr');
+    if(quizMode==='atk'&&selected.indexOf(atk)===-1)tr.classList.add('row-dim');
+    cellMap[a]={};
+
+    // attack header
+    var ath=document.createElement('th');
+    ath.className='hdr-atk';
+    ath.id='ahdr-'+a;
+    var aInner=document.createElement('span');
+    aInner.className='hdr-inner tc-'+atk;
+    aInner.textContent=atk;
+    ath.appendChild(aInner);
+    atkHdrMap[a]=ath;
+    tr.appendChild(ath);
+
+    for(var d2=0;d2<TYPES.length;d2++){
+      var def2=TYPES[d2];
+      var td=document.createElement('td');
+      td.className='cell';
+      var v=CHART[atk]?CHART[atk][def2]:undefined;
+      if(v===undefined)v=1;
+      var sym='－',cls='eff1';
+      if(v===2){sym='○';cls='eff2';}
+      else if(v===0.5){sym='△';cls='eff05';}
+      else if(v===0){sym='×';cls='eff0';}
+      td.textContent=sym;
+      td.classList.add(cls);
+      if(quizMode==='def'&&selected.indexOf(def2)===-1)td.classList.add('col-dim');
+      // store indices
+      td.dataset.a=a;td.dataset.d=d2;
+      td.dataset.atk=atk;td.dataset.def=def2;td.dataset.val=String(v);
+      // events
+      td.addEventListener('mouseenter',onCellEnter);
+      td.addEventListener('mouseleave',onCellLeave);
+      td.addEventListener('click',onCellClick);
+      cellMap[a][d2]=td;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  tbl.appendChild(tbody);
+}
+
+var lastA=-1,lastD=-1;
+function clearHighlight(){
+  if(lastA>=0&&lastD>=0){
+    for(var d=0;d<TYPES.length;d++){var c=cellMap[lastA][d];if(c){c.classList.remove('hl-row','hl-both');}}
+    for(var a=0;a<TYPES.length;a++){var c=cellMap[a][lastD];if(c){c.classList.remove('hl-col','hl-both');}}
+    if(atkHdrMap[lastA])atkHdrMap[lastA].classList.remove('hl-hdr');
+    if(defHdrMap[lastD])defHdrMap[lastD].classList.remove('hl-hdr');
+    lastA=-1;lastD=-1;
   }
 }
-
-function getChecked() {
-  var result = [];
-  for (var i = 0; i < TYPES.length; i++) {
-    if (document.getElementById('chk-' + TYPES[i]).checked) result.push(TYPES[i]);
-  }
-  return result;
+function applyHighlight(a,d){
+  clearHighlight();
+  lastA=a;lastD=d;
+  for(var dd=0;dd<TYPES.length;dd++){var c=cellMap[a][dd];if(c&&dd!==d)c.classList.add('hl-row');}
+  for(var aa=0;aa<TYPES.length;aa++){var c=cellMap[aa][d];if(c&&aa!==a)c.classList.add('hl-col');}
+  if(cellMap[a][d])cellMap[a][d].classList.add('hl-both');
+  if(atkHdrMap[a])atkHdrMap[a].classList.add('hl-hdr');
+  if(defHdrMap[d])defHdrMap[d].classList.add('hl-hdr');
+}
+function onCellEnter(e){
+  var td=e.currentTarget;
+  var a=parseInt(td.dataset.a),d=parseInt(td.dataset.d);
+  applyHighlight(a,d);
+}
+function onCellLeave(){clearHighlight();}
+function onCellClick(e){
+  var td=e.currentTarget;
+  var atk=td.dataset.atk,def=td.dataset.def,val=td.dataset.val;
+  var sym=val==='2'?'○':val==='0.5'?'△':val==='0'?'×':'－';
+  var mult=val==='2'?'2倍':val==='0.5'?'½倍':val==='0'?'無効（0倍）':'等倍（1倍）';
+  document.getElementById('cellInfo').textContent=
+    '⚔️ '+atk+'  →  🛡️ '+def+'  ：  '+sym+' '+mult;
 }
 
-function shuffle(a) {
-  for (var i = a.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
-  }
-  return a;
-}
+function openChart(){renderChart();document.getElementById('chartOverlay').style.display='block';document.body.style.overflow='hidden';}
+function closeChart(){document.getElementById('chartOverlay').style.display='none';document.body.style.overflow='';}
+function closeChartOutside(e){if(e.target===document.getElementById('chartOverlay'))closeChart();}
 
-function startQuiz() {
-  var selected = getChecked();
-  if (selected.length === 0) { alert('1つ以上タイプを選んでください'); return; }
-  var pool = [];
-  if (quizMode === 'atk') {
-    for (var i = 0; i < selected.length; i++)
-      for (var j = 0; j < TYPES.length; j++)
-        pool.push({ atk: selected[i], def: TYPES[j] });
-  } else {
-    for (var i = 0; i < selected.length; i++)
-      for (var j = 0; j < TYPES.length; j++)
-        pool.push({ atk: TYPES[j], def: selected[i] });
+// ── QUIZ ──────────────────────────────────────────────────
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=a[i];a[i]=a[j];a[j]=tmp;}return a;}
+
+function startQuiz(){
+  var selected=getChecked();
+  if(selected.length===0){alert('1つ以上タイプを選んでください');return;}
+  var pool=[];
+  if(quizMode==='atk'){
+    for(var i=0;i<selected.length;i++)for(var j=0;j<TYPES.length;j++)pool.push({atk:selected[i],def:TYPES[j]});
+  }else{
+    for(var i=0;i<selected.length;i++)for(var j=0;j<TYPES.length;j++)pool.push({atk:TYPES[j],def:selected[i]});
   }
-  shuffle(pool);
-  questions = pool.slice(0, 20);
-  qIdx = 0; score = 0; answered = false;
-  document.getElementById('qTotal').textContent = questions.length;
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('quiz').style.display = 'block';
+  shuffle(pool);questions=pool.slice(0,20);
+  qIdx=0;score=0;answered=false;
+  document.getElementById('qTotal').textContent=questions.length;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('quiz').style.display='block';
   showQuestion();
 }
 
-function showQuestion() {
-  answered = false;
-  var q = questions[qIdx];
-  var correctKey = getMultKey(q.atk, q.def);
-
-  document.getElementById('qNum').textContent = qIdx + 1;
-  document.getElementById('scoreDisp').textContent = score;
-  document.getElementById('progFill').style.width = (qIdx / questions.length * 100) + '%';
-
-  var ab = document.getElementById('atkBadge');
-  ab.textContent = q.atk; ab.className = 'type-badge tc-' + q.atk;
-  var db = document.getElementById('defBadge');
-  db.textContent = q.def; db.className = 'type-badge tc-' + q.def;
-
-  var wrap = document.getElementById('choices');
-  wrap.innerHTML = '';
-  for (var i = 0; i < OPTIONS.length; i++) {
-    (function(opt) {
-      var btn = document.createElement('button');
-      btn.className = 'choice-btn pop';
-      btn.setAttribute('data-key', opt.key);
-      btn.innerHTML = '<span>' + opt.label + '</span><span class="choice-sub">' + opt.sub + '</span>';
-      btn.onclick = function() { answer(this, correctKey); };
+function showQuestion(){
+  answered=false;
+  var q=questions[qIdx],correctKey=getMultKey(q.atk,q.def);
+  document.getElementById('qNum').textContent=qIdx+1;
+  document.getElementById('scoreDisp').textContent=score;
+  document.getElementById('progFill').style.width=(qIdx/questions.length*100)+'%';
+  var ab=document.getElementById('atkBadge');ab.textContent=q.atk;ab.className='type-badge tc-'+q.atk;
+  var db=document.getElementById('defBadge');db.textContent=q.def;db.className='type-badge tc-'+q.def;
+  var wrap=document.getElementById('choices');wrap.innerHTML='';
+  for(var i=0;i<OPTIONS.length;i++){
+    (function(opt){
+      var btn=document.createElement('button');
+      btn.className='choice-btn pop';btn.setAttribute('data-key',opt.key);
+      btn.innerHTML='<span>'+opt.label+'</span><span class="choice-sub">'+opt.sub+'</span>';
+      btn.onclick=function(){answer(this,correctKey);};
       wrap.appendChild(btn);
     })(OPTIONS[i]);
   }
-
-  document.getElementById('feedback').textContent = '';
-  document.getElementById('feedback').className = 'feedback';
-  document.getElementById('btnNext').style.display = 'none';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('btnNext').style.display='none';
 }
 
-function answer(clickedBtn, correctKey) {
-  if (answered) return;
-  answered = true;
-
-  var chosenKey = clickedBtn.getAttribute('data-key');
-  var isCorrect = (chosenKey === correctKey);
-  if (isCorrect) score++;
-  document.getElementById('scoreDisp').textContent = score;
-
-  var allBtns = document.getElementById('choices').getElementsByClassName('choice-btn');
-  for (var i = 0; i < allBtns.length; i++) {
-    var btn = allBtns[i];
-    btn.disabled = true;
-    if (btn.getAttribute('data-key') === correctKey) {
-      btn.classList.add('correct');
-    } else if (btn === clickedBtn) {
-      btn.classList.add('wrong');
-    }
+function answer(clickedBtn,correctKey){
+  if(answered)return;answered=true;
+  var chosenKey=clickedBtn.getAttribute('data-key');
+  var isCorrect=(chosenKey===correctKey);
+  if(isCorrect)score++;
+  document.getElementById('scoreDisp').textContent=score;
+  var allBtns=document.getElementById('choices').getElementsByClassName('choice-btn');
+  for(var i=0;i<allBtns.length;i++){
+    var btn=allBtns[i];btn.disabled=true;
+    if(btn.getAttribute('data-key')===correctKey)btn.classList.add('correct');
+    else if(btn===clickedBtn)btn.classList.add('wrong');
   }
-
-  var fb = document.getElementById('feedback');
-  if (isCorrect) {
-    fb.textContent = '✓ 正解！';
-    fb.className = 'feedback correct';
-  } else {
-    var correctOpt = null;
-    for (var i = 0; i < OPTIONS.length; i++) {
-      if (OPTIONS[i].key === correctKey) { correctOpt = OPTIONS[i]; break; }
-    }
-    fb.textContent = '✗ 不正解… 正解は「' + correctOpt.label + '」(' + correctOpt.sub + ')';
-    fb.className = 'feedback wrong';
+  var fb=document.getElementById('feedback');
+  if(isCorrect){fb.textContent='✓ 正解！';fb.className='feedback correct';}
+  else{
+    var co=null;for(var i=0;i<OPTIONS.length;i++)if(OPTIONS[i].key===correctKey){co=OPTIONS[i];break;}
+    fb.textContent='✗ 不正解… 正解は「'+co.label+'」('+co.sub+')';fb.className='feedback wrong';
   }
-
-  var btnNext = document.getElementById('btnNext');
-  btnNext.textContent = (qIdx + 1 >= questions.length) ? '結果を見る ✓' : '次の問題 →';
-  btnNext.style.display = 'block';
+  var btnNext=document.getElementById('btnNext');
+  btnNext.textContent=(qIdx+1>=questions.length)?'結果を見る ✓':'次の問題 →';
+  btnNext.style.display='block';
 }
 
-function nextQuestion() {
-  qIdx++;
-  if (qIdx >= questions.length) { showResult(); return; }
-  showQuestion();
+function nextQuestion(){qIdx++;if(qIdx>=questions.length){showResult();return;}showQuestion();}
+
+function showResult(){
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('result').style.display='block';
+  var total=questions.length,pct=score/total;
+  document.getElementById('finalScore').textContent=score+' / '+total;
+  document.getElementById('finalLabel').textContent='正解率 '+Math.round(pct*100)+'%';
+  var rank='';
+  if(pct===1)rank='🏆 パーフェクト！タイプマスター！';
+  else if(pct>=0.8)rank='🌟 すばらしい！';
+  else if(pct>=0.6)rank='👍 なかなかよい！';
+  else if(pct>=0.4)rank='😅 まだまだ修行が必要…';
+  else rank='💦 タイプ表を見直そう！';
+  document.getElementById('finalRank').textContent=rank;
 }
 
-function showResult() {
-  document.getElementById('quiz').style.display = 'none';
-  document.getElementById('result').style.display = 'block';
-  var total = questions.length;
-  var pct = score / total;
-  document.getElementById('finalScore').textContent = score + ' / ' + total;
-  document.getElementById('finalLabel').textContent = '正解率 ' + Math.round(pct * 100) + '%';
-  var rank = '';
-  if      (pct === 1)  rank = '🏆 パーフェクト！タイプマスター！';
-  else if (pct >= 0.8) rank = '🌟 すばらしい！';
-  else if (pct >= 0.6) rank = '👍 なかなかよい！';
-  else if (pct >= 0.4) rank = '😅 まだまだ修行が必要…';
-  else                 rank = '💦 タイプ表を見直そう！';
-  document.getElementById('finalRank').textContent = rank;
-}
-
-function backToSetup() {
-  document.getElementById('result').style.display = 'none';
-  document.getElementById('setup').style.display = 'block';
+function backToSetup(){
+  document.getElementById('result').style.display='none';
+  document.getElementById('setup').style.display='block';
 }
 </script>
-
 </body>
 </html>
