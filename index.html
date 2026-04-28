@@ -57,17 +57,17 @@
   table.ct th,table.ct td{padding:0;border:1px solid rgba(255,255,255,.07);}
 
   /* corner */
-  th.corner{width:54px;min-width:54px;height:54px;background:transparent;border:none;position:relative;}
+  th.corner{width:54px;min-width:54px;height:54px;background:var(--surface);border:none;position:sticky;top:0;left:0;z-index:4;}
   th.corner::after{content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(255,255,255,.15) calc(50% - .5px),rgba(255,255,255,.15) calc(50% + .5px),transparent calc(50% + .5px));}
   th.corner .c-atk{position:absolute;bottom:4px;left:5px;font-size:.5rem;color:var(--muted);}
   th.corner .c-def{position:absolute;top:4px;right:5px;font-size:.5rem;color:var(--muted);}
 
   /* defense header (column) */
-  th.hdr-def{width:28px;min-width:28px;height:54px;vertical-align:bottom;padding:3px 2px;}
+  th.hdr-def{width:28px;min-width:28px;height:54px;vertical-align:bottom;padding:3px 2px;position:sticky;top:0;z-index:3;background:var(--surface);}
   th.hdr-def .hdr-inner{writing-mode:vertical-rl;font-size:.62rem;font-weight:700;color:#fff;padding:3px 3px;border-radius:4px;display:inline-block;white-space:nowrap;}
 
   /* attack header (row) */
-  th.hdr-atk{width:54px;min-width:54px;height:28px;text-align:right;padding:2px 4px;}
+  th.hdr-atk{width:54px;min-width:54px;height:28px;text-align:right;padding:2px 4px;position:sticky;left:0;z-index:2;background:var(--surface);}
   th.hdr-atk .hdr-inner{font-size:.62rem;font-weight:700;color:#fff;padding:2px 5px;border-radius:4px;display:inline-block;white-space:nowrap;}
 
   /* data cells */
@@ -360,16 +360,16 @@ function onCellEnter(e){
   var td=e.currentTarget;
   var a=parseInt(td.dataset.a),d=parseInt(td.dataset.d);
   applyHighlight(a,d);
-}
-function onCellLeave(){clearHighlight();}
-function onCellClick(e){
-  var td=e.currentTarget;
   var atk=td.dataset.atk,def=td.dataset.def,val=td.dataset.val;
   var sym=val==='2'?'○':val==='0.5'?'△':val==='0'?'×':'－';
   var mult=val==='2'?'2倍':val==='0.5'?'½倍':val==='0'?'無効（0倍）':'等倍（1倍）';
-  document.getElementById('cellInfo').textContent=
-    '⚔️ '+atk+'  →  🛡️ '+def+'  ：  '+sym+' '+mult;
+  document.getElementById('cellInfo').textContent='⚔️ '+atk+'  →  🛡️ '+def+'  ：  '+sym+' '+mult;
 }
+function onCellLeave(){
+  clearHighlight();
+  document.getElementById('cellInfo').textContent='';
+}
+function onCellClick(e){}
 
 function openChart(){renderChart();document.getElementById('chartOverlay').style.display='block';document.body.style.overflow='hidden';}
 function closeChart(){document.getElementById('chartOverlay').style.display='none';document.body.style.overflow='';}
