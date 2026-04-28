@@ -43,16 +43,16 @@
   .btn-start:hover{transform:translateY(-2px);}
 
   /* overlay */
-  #chartOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;overflow:auto;padding:16px 6px 40px;}
-  .chart-wrap{max-width:900px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 10px 18px;position:relative;}
+  #chartOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;padding:16px 6px;display:flex;align-items:flex-start;justify-content:center;}
+  .chart-wrap{width:100%;max-width:900px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 10px 18px;position:relative;max-height:calc(100vh - 32px);display:flex;flex-direction:column;}
   .chart-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;z-index:2;}
-  .chart-title{font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:10px;text-align:center;}
-  .chart-legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;font-size:.7rem;}
+  .chart-title{font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:10px;text-align:center;flex-shrink:0;}
+  .chart-legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;font-size:.7rem;flex-shrink:0;}
   .legend-item{display:flex;align-items:center;gap:5px;}
   .legend-box{width:14px;height:14px;border-radius:3px;}
 
   /* table */
-  .chart-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .chart-table-wrap{overflow:auto;-webkit-overflow-scrolling:touch;flex:1;}
   table.ct{border-collapse:collapse;table-layout:fixed;}
   table.ct th,table.ct td{padding:0;border:1px solid rgba(255,255,255,.07);}
 
@@ -152,7 +152,7 @@
       <div class="legend-item"><div class="legend-box" style="background:rgba(255,92,110,.5)"></div><span>× 無効</span></div>
       <div class="legend-item"><div class="legend-box" style="background:rgba(255,255,255,.06)"></div><span>－ 等倍</span></div>
     </div>
-    <div id="cellInfo" style="text-align:center;min-height:22px;font-size:.78rem;color:var(--accent);font-weight:700;margin-bottom:8px;"></div>
+    <div id="cellInfo" style="text-align:center;min-height:22px;font-size:.78rem;color:var(--accent);font-weight:700;margin-bottom:8px;flex-shrink:0;"></div>
     <div class="chart-table-wrap">
       <table class="ct" id="chartTable"></table>
     </div>
