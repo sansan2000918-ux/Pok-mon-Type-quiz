@@ -157,13 +157,9 @@ function applyTableClasses() {
 //  相性表レンダリング
 // ══════════════════════════════════════════
 
-// 選択数に応じたセルサイズを計算する
-function calcCellSize(selCount) {
-  var base = 30, max = 56;
-  if (selCount === 0) return base;
-  var size = Math.round(max - (max - base) * (selCount / TYPES.length));
-  return Math.max(base, Math.min(max, size));
-}
+// 選択サイズ: 固定56px
+var SEL_SIZE = 56;
+var BASE_SIZE = 30;
 
 function renderChart() {
   var selected = getSelected();
@@ -171,11 +167,6 @@ function renderChart() {
   var tbl = document.getElementById('chartTable');
   tbl.innerHTML = '';
   cellMap = {}; atkHdrMap = {}; defHdrMap = {};
-
-  // 選択数に応じたサイズ計算（モードに応じて行/列どちらを拡大するか）
-  var cellSize = calcCellSize(selected.length);
-  var rowH = (chartMode === 'atk' && hasSelection) ? cellSize : 30;
-  var colW = (chartMode === 'def' && hasSelection) ? cellSize : 30;
 
   // ── thead ──
   var thead = document.createElement('thead');
@@ -193,6 +184,8 @@ function renderChart() {
     var dimDef = hasSelection && (chartMode === 'def' && !selDef);
     th.className = 'hdr-def' + (dimDef ? ' col-dim hdr-off' : '');
     th.id = 'dhdr-' + d;
+    // 防御モード: 選択された列だけ広く
+    var colW = (chartMode === 'def' && selDef) ? SEL_SIZE : BASE_SIZE;
     th.style.width    = colW + 'px';
     th.style.minWidth = colW + 'px';
 
@@ -216,11 +209,12 @@ function renderChart() {
   for (var a = 0; a < TYPES.length; a++) {
     var atk = TYPES[a];
     var selAtk = (selected.indexOf(atk) >= 0);
-    // 攻撃モードで何か選択中: 未選択行はdim
     var dimAtk = hasSelection && (chartMode === 'atk') && !selAtk;
 
     var tr = document.createElement('tr');
     if (dimAtk) tr.classList.add('row-dim');
+    // 攻撃モード: 選択された行だけ高く
+    var rowH = (chartMode === 'atk' && selAtk) ? SEL_SIZE : BASE_SIZE;
     tr.style.height = rowH + 'px';
     cellMap[a] = {};
 
@@ -241,15 +235,18 @@ function renderChart() {
     tr.appendChild(ath);
 
     for (var d2 = 0; d2 < TYPES.length; d2++) {
-      var def2   = TYPES[d2];
+      var def2    = TYPES[d2];
       var selDef2 = (selected.indexOf(def2) >= 0);
       var dimDef2 = hasSelection && (chartMode === 'def') && !selDef2;
 
       var td = document.createElement('td');
       td.className = 'cell' + (dimDef2 ? ' col-dim' : '');
-      td.style.width    = colW + 'px';
-      td.style.minWidth = colW + 'px';
-      td.style.height   = rowH + 'px';
+      // セルも行・列に合わせてサイズ設定
+      var tdW = (chartMode === 'def' && selDef2) ? SEL_SIZE : BASE_SIZE;
+      var tdH = (chartMode === 'atk' && selAtk)  ? SEL_SIZE : BASE_SIZE;
+      td.style.width    = tdW + 'px';
+      td.style.minWidth = tdW + 'px';
+      td.style.height   = tdH + 'px';
 
       var v = (CHART[atk] && CHART[atk][def2] !== undefined) ? CHART[atk][def2] : 1;
       var sym = '－', cls = 'eff1';
@@ -289,11 +286,23 @@ function clearHighlight() {
   document.getElementById('chartTable').classList.remove('hl-active');
   for (var d = 0; d < TYPES.length; d++) {
     var c = cellMap[lastA] && cellMap[lastA][d];
-    if (c) { c.classList.remove('hl-row','hl-both'); c.style.cssText=''; }
+    if (c) {
+      c.classList.remove('hl-row','hl-both');
+      c.style.removeProperty('--hl-row-bg');
+      c.style.removeProperty('--hl-atk-color');
+      c.style.removeProperty('transform');
+      c.style.removeProperty('box-shadow');
+    }
   }
   for (var a = 0; a < TYPES.length; a++) {
     var c = cellMap[a] && cellMap[a][lastD];
-    if (c) { c.classList.remove('hl-col','hl-both'); c.style.cssText=''; }
+    if (c) {
+      c.classList.remove('hl-col','hl-both');
+      c.style.removeProperty('--hl-col-bg');
+      c.style.removeProperty('--hl-atk-color');
+      c.style.removeProperty('transform');
+      c.style.removeProperty('box-shadow');
+    }
   }
   if (atkHdrMap[lastA]) atkHdrMap[lastA].classList.remove('hl-hdr-atk');
   if (defHdrMap[lastD]) defHdrMap[lastD].classList.remove('hl-hdr-def');
