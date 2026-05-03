@@ -13,36 +13,19 @@
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     メイン画面（相性表）
-════════════════════════════════════════════ -->
+<!-- メイン画面（相性表） -->
 <div id="mainView">
 
-  <!-- ヘッダー -->
   <div id="appHeader">
     <span id="appTitle">⚡ タイプ相性表</span>
 
     <div id="controls">
 
-      <!-- トグルペア1：攻撃 ⇔ 防御 -->
-      <div class="sw-pair">
-        <span class="sw-lbl on" id="lbl-modeAtk">⚔️ 攻撃</span>
-        <label class="sw-wrap">
-          <input type="checkbox" id="modeSw" onchange="setMode(this.checked?'def':'atk')">
-          <span class="sw-track"></span>
-        </label>
-        <span class="sw-lbl" id="lbl-modeDef">🛡️ 防御</span>
-      </div>
+      <!-- 攻撃/防御 トグルボタン（現在の状態を表示） -->
+      <button id="btnMode" class="btn-sm btn-toggle" onclick="toggleMode()">⚔️ 攻撃</button>
 
-      <!-- トグルペア2：グレーアウト ⇔ 選択のみ -->
-      <div class="sw-pair">
-        <span class="sw-lbl on" id="lbl-grayout">グレーアウト</span>
-        <label class="sw-wrap">
-          <input type="checkbox" id="filterSw" onchange="setFilterMode(this.checked)">
-          <span class="sw-track"></span>
-        </label>
-        <span class="sw-lbl" id="lbl-hideUnsel">選択のみ</span>
-      </div>
+      <!-- グレーアウト/選択のみ トグルボタン -->
+      <button id="btnFilter" class="btn-sm btn-toggle" onclick="toggleFilter()">グレーアウト</button>
 
       <!-- タイプ選択ドロップダウン -->
       <div class="select-wrap">
@@ -93,12 +76,9 @@
     <table class="ct" id="chartTable"></table>
   </div>
 
-</div><!-- /mainView -->
+</div>
 
-
-<!-- ══════════════════════════════════════════
-     クイズ画面
-════════════════════════════════════════════ -->
+<!-- クイズ画面 -->
 <div id="quizView" style="display:none;">
   <div id="quizInner">
     <button class="btn-back" onclick="quitQuiz()">← 戻る</button>
@@ -122,10 +102,7 @@
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════
-     結果画面
-════════════════════════════════════════════ -->
+<!-- 結果画面 -->
 <div id="resultView" style="display:none;">
   <div id="resultInner">
     <div class="result-score" id="finalScore"></div>

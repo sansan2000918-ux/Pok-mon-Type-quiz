@@ -133,21 +133,19 @@ function toggleAllTypes() {
 //  モード切り替え
 // ══════════════════════════════════════════
 
-function setMode(m) {
-  quizMode  = m;
-  chartMode = m;
-  document.getElementById('modeSw').checked = (m === 'def');
-  document.getElementById('lbl-modeAtk').className = 'sw-lbl' + (m === 'atk' ? ' on' : '');
-  document.getElementById('lbl-modeDef').className = 'sw-lbl' + (m === 'def' ? ' on' : '');
+function toggleMode() {
+  quizMode  = (quizMode === 'atk') ? 'def' : 'atk';
+  chartMode = quizMode;
+  var btn = document.getElementById('btnMode');
+  btn.textContent = (quizMode === 'atk') ? '⚔️ 攻撃' : '🛡️ 防御';
   renderChart();
 }
 
-// デフォルト: グレーアウト=true（トグルOFF）→ 選択のみ=true（トグルON）
-function setFilterMode(isHideUnsel) {
-  hideUnsel = isHideUnsel;
-  grayout   = !isHideUnsel;
-  document.getElementById('lbl-grayout').className   = 'sw-lbl' + (!isHideUnsel ? ' on' : '');
-  document.getElementById('lbl-hideUnsel').className = 'sw-lbl' + ( isHideUnsel ? ' on' : '');
+function toggleFilter() {
+  hideUnsel = !hideUnsel;
+  grayout   = !hideUnsel;
+  var btn = document.getElementById('btnFilter');
+  btn.textContent = grayout ? 'グレーアウト' : '選択のみ';
   applyTableClasses();
 }
 
