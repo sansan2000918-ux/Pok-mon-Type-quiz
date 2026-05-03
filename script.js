@@ -101,16 +101,17 @@ function getSelected() {
 
 function updateToggleAllBtn() {
   var btn = document.getElementById('btnToggleAll');
-  var allSel = (selectedTypes.length === TYPES.length);
-  btn.textContent = allSel ? '全解除' : '全選択';
-  btn.className   = 'btn-sm' + (allSel ? ' active' : '');
+  var hasSel = (selectedTypes.length > 0);
+  btn.textContent = hasSel ? '全解除' : '全選択';
+  btn.className   = 'btn-sm' + (hasSel ? ' active' : '');
 }
 
 function toggleAllTypes() {
-  if (selectedTypes.length === TYPES.length) {
+  if (selectedTypes.length > 0) {
+    // 1つでも選択中なら全解除
     selectedTypes.length = 0;
   } else {
-    selectedTypes.length = 0;
+    // 何も選んでいなければ全選択
     for (var i = 0; i < TYPES.length; i++) selectedTypes.push(TYPES[i]);
   }
   updateToggleAllBtn();
