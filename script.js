@@ -150,7 +150,10 @@ function applyTableClasses() {
   var tbl = document.getElementById('chartTable');
   var hasSelection = getSelected().length > 0;
   tbl.classList.toggle('hide-unsel', hasSelection && hideUnsel);
-  tbl.classList.toggle('grayout',    hasSelection && grayout);
+  // grayout: 攻撃モードは常時（全解除でも全行dim）、防御モードは選択中のみ
+  tbl.classList.toggle('grayout',
+    grayout && (chartMode === 'atk' || hasSelection)
+  );
 }
 
 // ══════════════════════════════════════════
@@ -181,7 +184,8 @@ function renderChart() {
     var def = TYPES[d];
     var th  = document.createElement('th');
     var selDef = (selected.indexOf(def) >= 0);
-    var dimDef = hasSelection && (chartMode === 'def' && !selDef);
+    // 防御モード: 未選択はdim。全解除時も全列dim
+    var dimDef = (chartMode === 'def') && !selDef;
     th.className = 'hdr-def' + (dimDef ? ' col-dim hdr-off' : '');
     th.id = 'dhdr-' + d;
     // 防御モード: 選択された列だけ広く
@@ -209,7 +213,8 @@ function renderChart() {
   for (var a = 0; a < TYPES.length; a++) {
     var atk = TYPES[a];
     var selAtk = (selected.indexOf(atk) >= 0);
-    var dimAtk = hasSelection && (chartMode === 'atk') && !selAtk;
+    // 攻撃モード: 未選択はdim。全解除(hasSelection=false)のときも全行dim
+    var dimAtk = (chartMode === 'atk') && !selAtk;
 
     var tr = document.createElement('tr');
     if (dimAtk) tr.classList.add('row-dim');
@@ -237,7 +242,7 @@ function renderChart() {
     for (var d2 = 0; d2 < TYPES.length; d2++) {
       var def2    = TYPES[d2];
       var selDef2 = (selected.indexOf(def2) >= 0);
-      var dimDef2 = hasSelection && (chartMode === 'def') && !selDef2;
+      var dimDef2 = (chartMode === 'def') && !selDef2;
 
       var td = document.createElement('td');
       td.className = 'cell' + (dimDef2 ? ' col-dim' : '');
