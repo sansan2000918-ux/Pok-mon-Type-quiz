@@ -257,18 +257,6 @@ function renderChart() {
   applyTableClasses();
 }
 
-// ヘッダークリックでタイプをセレクトボックスでトグル
-function toggleType(t) {
-  var sel = document.getElementById('typeSelect');
-  for (var i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].value === t) {
-      sel.options[i].selected = !sel.options[i].selected;
-      break;
-    }
-  }
-  updateSelectHint();
-  renderChart();
-}
 
 // ══════════════════════════════════════════
 //  ハイライト
@@ -475,6 +463,5 @@ function showView(id) {
 // ══════════════════════════════════════════
 
 // デフォルト: 全解除・攻撃・グレーアウト
-updateSelectHint();   // 0/18選択中
-setFilterMode(false); // グレーアウト（トグルOFF）
+updateToggleAllBtn();
 renderChart();
