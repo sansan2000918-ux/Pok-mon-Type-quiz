@@ -190,7 +190,8 @@ body {
 table.ct {
   border-collapse: collapse;
   table-layout: fixed;
-  width: 100%;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 /* corner */
@@ -274,10 +275,10 @@ td.cell.eff0  { background: rgba(255,92,110,.28);  color: #ff5c6e; }
 td.cell.eff1  { background: rgba(255,255,255,.03); color: rgba(255,255,255,.18); }
 
 /* ══ グレーアウト ══ */
-table.ct.grayout tr.row-dim th.hdr-atk,
-table.ct.grayout tr.row-dim td.cell { opacity: .25; }
-table.ct.grayout th.col-dim,
-table.ct.grayout td.col-dim { opacity: .25; }
+table.ct.grayout tr.row-dim th.hdr-atk { opacity: .55; }
+table.ct.grayout tr.row-dim td.cell    { opacity: .35; filter: saturate(.3); }
+table.ct.grayout th.col-dim            { opacity: .55; }
+table.ct.grayout td.col-dim            { opacity: .35; filter: saturate(.3); }
 
 /* ══ 選択のみ ══ */
 table.ct.hide-unsel tr.row-dim { display: none; }
