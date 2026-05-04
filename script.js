@@ -167,8 +167,9 @@ function renderChart() {
 
   // 攻撃モード: 幅600px以上なら画面幅に合わせて18列収める、スマホ縦は固定幅
   var cornerW = 56;
-  var wrapW = document.getElementById('chartTableWrap').clientWidth;
-  var atkColW = (wrapW >= 600)
+  var wrap = document.getElementById('chartTableWrap');
+  var wrapW = wrap.clientWidth - 20; // スクロールバー分を引く
+  var atkColW = (wrapW >= 580)
     ? Math.max(22, Math.floor((wrapW - cornerW) / TYPES.length))
     : 30;
 
