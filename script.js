@@ -48,19 +48,15 @@ var TYPE_COLOR = {
 //  状態変数
 // ══════════════════════════════════════════
 
-var quizMode  = 'atk';   // 'atk' | 'def'
-var chartMode = 'atk';   // 相性表の絞り込み軸（quizModeと連動）
-var grayout   = true;    // デフォルト: グレーアウト
-var hideUnsel = false;   // デフォルト: グレーアウト（選択のみ=false）
-var allSelected = false; // 全選択トグルの現在値
+var quizMode  = 'atk';
+var chartMode = 'atk';
+var hideUnsel = false;
+var grayout   = false;
 
-// クイズ用
+var selectedTypes = [];
+
 var questions = [], qIdx = 0, score = 0, answered = false;
-
-// 相性表ハイライト用
-var cellMap   = {};
-var atkHdrMap = {};
-var defHdrMap = {};
+var cellMap = {}, atkHdrMap = {}, defHdrMap = {};
 var lastA = -1, lastD = -1;
 
 // ══════════════════════════════════════════
@@ -89,15 +85,11 @@ function shuffle(a) {
   return a;
 }
 
-// ══════════════════════════════════════════
-//  タイプ選択状態（配列で管理）
-// ══════════════════════════════════════════
+function getSelected() { return selectedTypes.slice(); }
 
-var selectedTypes = [];  // 選択中タイプの配列
-
-function getSelected() {
-  return selectedTypes.slice();
-}
+// ══════════════════════════════════════════
+//  タイプ選択
+// ══════════════════════════════════════════
 
 function updateToggleAllBtn() {
   var btn = document.getElementById('btnToggleAll');
@@ -108,10 +100,8 @@ function updateToggleAllBtn() {
 
 function toggleAllTypes() {
   if (selectedTypes.length > 0) {
-    // 1つでも選択中なら全解除
     selectedTypes.length = 0;
   } else {
-    // 何も選んでいなければ全選択
     for (var i = 0; i < TYPES.length; i++) selectedTypes.push(TYPES[i]);
   }
   updateToggleAllBtn();
@@ -127,7 +117,7 @@ function toggleType(t) {
 }
 
 // ══════════════════════════════════════════
-//  モード切り替え
+//  モード・フィルター切り替え
 // ══════════════════════════════════════════
 
 function toggleMode() {
@@ -148,29 +138,32 @@ function toggleFilter() {
 
 function applyTableClasses() {
   var tbl = document.getElementById('chartTable');
-  var hasSelection = getSelected().length > 0;
-  // hide-unsel: 「選択のみ」モードのとき常に適用（全解除なら全行消える）
   tbl.classList.toggle('hide-unsel', hideUnsel);
-  // grayout: 攻撃モードは常時、防御モードは選択中のみ
-  tbl.classList.toggle('grayout',
-    grayout && (chartMode === 'atk' || hasSelection)
-  );
+  tbl.classList.toggle('grayout',    grayout);
 }
 
 // ══════════════════════════════════════════
 //  相性表レンダリング
 // ══════════════════════════════════════════
 
-// 選択サイズ: 固定56px
-var SEL_SIZE = 56;
-var BASE_SIZE = 30;
-
 function renderChart() {
   var selected = getSelected();
-  var hasSelection = selected.length > 0;
+  var n = selected.length;
   var tbl = document.getElementById('chartTable');
   tbl.innerHTML = '';
   cellMap = {}; atkHdrMap = {}; defHdrMap = {};
+
+  // 選択数に応じたステップ式サイズ（参照版ロジック）
+  var baseCell, selCell;
+  if (n === 0) {
+    baseCell = 30; selCell = 30;  // 全解除時は均一
+  } else if (n >= 8) {
+    baseCell = 22; selCell = 44;
+  } else if (n >= 4) {
+    baseCell = 28; selCell = 54;
+  } else {
+    baseCell = 36; selCell = 64;
+  }
 
   // ── thead ──
   var thead = document.createElement('thead');
@@ -183,14 +176,15 @@ function renderChart() {
 
   for (var d = 0; d < TYPES.length; d++) {
     var def = TYPES[d];
-    var th  = document.createElement('th');
     var selDef = (selected.indexOf(def) >= 0);
-    // 防御モード: 未選択はdim。全解除時も全列dim
-    var dimDef = (chartMode === 'def') && !selDef;
-    th.className = 'hdr-def' + (dimDef ? ' col-dim hdr-off' : '');
+    var defOff = (chartMode === 'def') && !selDef;
+
+    var th = document.createElement('th');
+    th.className = 'hdr-def' + (defOff ? ' col-dim hdr-off' : '');
     th.id = 'dhdr-' + d;
-    // 防御モード: 選択された列だけ広く
-    var colW = (chartMode === 'def' && selDef) ? SEL_SIZE : BASE_SIZE;
+
+    // 攻撃モード: 全列同じ幅(selCell)。防御モード: 選択列=selCell、未選択=baseCell
+    var colW = (chartMode === 'atk') ? selCell : (selDef ? selCell : baseCell);
     th.style.width    = colW + 'px';
     th.style.minWidth = colW + 'px';
 
@@ -214,20 +208,19 @@ function renderChart() {
   for (var a = 0; a < TYPES.length; a++) {
     var atk = TYPES[a];
     var selAtk = (selected.indexOf(atk) >= 0);
-    // 攻撃モード: 未選択はdim（hdr-offで薄く、hide-unselで非表示）
-    // 選択されていればdimなし
-    var dimAtk = (chartMode === 'atk') && !selAtk;
+    var atkOff = (chartMode === 'atk') && !selAtk;
 
     var tr = document.createElement('tr');
-    if (dimAtk) tr.classList.add('row-dim');
-    // 攻撃モード: 選択された行だけ高く
-    var rowH = (chartMode === 'atk' && selAtk) ? SEL_SIZE : BASE_SIZE;
-    tr.style.height = rowH + 'px';
+    if (atkOff) tr.classList.add('row-dim');
     cellMap[a] = {};
 
     var ath = document.createElement('th');
-    ath.className = 'hdr-atk' + (dimAtk ? ' hdr-off' : '');
+    ath.className = 'hdr-atk' + (atkOff ? ' hdr-off' : '');
     ath.id = 'ahdr-' + a;
+
+    // 防御モード: 全行同じ高さ(selCell)。攻撃モード: 選択行=selCell、未選択=baseCell
+    var rowH = (chartMode === 'def') ? selCell : (selAtk ? selCell : baseCell);
+    ath.style.height = rowH + 'px';
 
     var aInner = document.createElement('span');
     aInner.className = 'hdr-inner tc-' + atk;
@@ -244,16 +237,24 @@ function renderChart() {
     for (var d2 = 0; d2 < TYPES.length; d2++) {
       var def2    = TYPES[d2];
       var selDef2 = (selected.indexOf(def2) >= 0);
-      var dimDef2 = (chartMode === 'def') && !selDef2;
 
       var td = document.createElement('td');
-      td.className = 'cell' + (dimDef2 ? ' col-dim' : '');
-      // セルも行・列に合わせてサイズ設定
-      var tdW = (chartMode === 'def' && selDef2) ? SEL_SIZE : BASE_SIZE;
-      var tdH = (chartMode === 'atk' && selAtk)  ? SEL_SIZE : BASE_SIZE;
+      td.className = 'cell';
+
+      // セルの幅・高さ（参照版ロジック）
+      var tdW, tdH;
+      if (chartMode === 'atk') {
+        tdW = selCell;
+        tdH = selAtk ? selCell : baseCell;
+      } else {
+        tdH = selCell;
+        tdW = selDef2 ? selCell : baseCell;
+      }
       td.style.width    = tdW + 'px';
       td.style.minWidth = tdW + 'px';
       td.style.height   = tdH + 'px';
+
+      if (chartMode === 'def' && !selDef2) td.classList.add('col-dim');
 
       var v = (CHART[atk] && CHART[atk][def2] !== undefined) ? CHART[atk][def2] : 1;
       var sym = '－', cls = 'eff1';
@@ -271,7 +272,6 @@ function renderChart() {
 
       td.addEventListener('mouseenter', onCellEnter);
       td.addEventListener('mouseleave', onCellLeave);
-      // タップ対応
       td.addEventListener('touchstart', onCellTouch, { passive: true });
 
       cellMap[a][d2] = td;
@@ -283,7 +283,6 @@ function renderChart() {
   applyTableClasses();
 }
 
-
 // ══════════════════════════════════════════
 //  ハイライト
 // ══════════════════════════════════════════
@@ -294,21 +293,17 @@ function clearHighlight() {
   for (var d = 0; d < TYPES.length; d++) {
     var c = cellMap[lastA] && cellMap[lastA][d];
     if (c) {
-      c.classList.remove('hl-row','hl-both');
+      c.classList.remove('hl-row', 'hl-both');
       c.style.removeProperty('--hl-row-bg');
       c.style.removeProperty('--hl-atk-color');
-      c.style.removeProperty('transform');
-      c.style.removeProperty('box-shadow');
     }
   }
   for (var a = 0; a < TYPES.length; a++) {
     var c = cellMap[a] && cellMap[a][lastD];
     if (c) {
-      c.classList.remove('hl-col','hl-both');
+      c.classList.remove('hl-col', 'hl-both');
       c.style.removeProperty('--hl-col-bg');
-      c.style.removeProperty('--hl-atk-color');
-      c.style.removeProperty('transform');
-      c.style.removeProperty('box-shadow');
+      c.style.removeProperty('--hl-def-color');
     }
   }
   if (atkHdrMap[lastA]) atkHdrMap[lastA].classList.remove('hl-hdr-atk');
@@ -329,12 +324,14 @@ function applyHighlight(a, d) {
     var c = cellMap[a][dd];
     if (!c || dd === d) continue;
     c.style.setProperty('--hl-row-bg', hexToRgba(atkColor, .18));
+    c.style.setProperty('--hl-atk-color', atkColor);
     c.classList.add('hl-row');
   }
   for (var aa = 0; aa < TYPES.length; aa++) {
     var c = cellMap[aa][d];
     if (!c || aa === a) continue;
     c.style.setProperty('--hl-col-bg', hexToRgba(defColor, .18));
+    c.style.setProperty('--hl-def-color', defColor);
     c.classList.add('hl-col');
   }
   var cr = cellMap[a][d];
@@ -351,7 +348,6 @@ function applyHighlight(a, d) {
     defHdrMap[d].classList.add('hl-hdr-def');
   }
 
-  // セル情報表示
   var atk = TYPES[a], def = TYPES[d];
   var val = cr ? cr.dataset.val : '1';
   var sym  = val==='2' ? '○' : val==='0.5' ? '△' : val==='0' ? '×' : '－';
@@ -483,12 +479,8 @@ function showResult() {
   showView('resultView');
 }
 
-function quitQuiz()   { showView('mainView'); }
+function quitQuiz()    { showView('mainView'); }
 function backToChart() { showView('mainView'); }
-
-// ══════════════════════════════════════════
-//  画面切り替え
-// ══════════════════════════════════════════
 
 function showView(id) {
   ['mainView','quizView','resultView'].forEach(function(v) {
@@ -496,10 +488,6 @@ function showView(id) {
   });
 }
 
-// ══════════════════════════════════════════
-//  初期化
-// ══════════════════════════════════════════
-
-// デフォルト: 全解除・攻撃・グレーアウト
+// ── 初期化 ──
 updateToggleAllBtn();
 renderChart();
