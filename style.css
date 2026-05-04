@@ -185,13 +185,14 @@ body {
   flex: 1;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 table.ct {
   border-collapse: collapse;
   table-layout: fixed;
-  margin-left: 0;
-  margin-right: auto;
 }
 
 /* corner */
@@ -274,7 +275,34 @@ td.cell.eff05 { background: rgba(247,180,60,.22);  color: #f7b43c; }
 td.cell.eff0  { background: rgba(255,92,110,.28);  color: #ff5c6e; }
 td.cell.eff1  { background: rgba(255,255,255,.03); color: rgba(255,255,255,.18); }
 
-/* ══ グレーアウト ══ */
+/* ══ ゼブラストライプ ══ */
+tbody tr:nth-child(even) td.cell {
+  background-color: rgba(255,255,255,.025);
+}
+tbody tr:nth-child(even) td.cell.eff2  { background: rgba(76,222,123,.33); }
+tbody tr:nth-child(even) td.cell.eff05 { background: rgba(247,180,60,.27); }
+tbody tr:nth-child(even) td.cell.eff0  { background: rgba(255,92,110,.33); }
+
+/* ══ eff1（等倍）は記号を非表示 ══ */
+td.cell.eff1 { color: transparent; }
+
+/* ══ セルホバースケール ══ */
+td.cell:hover {
+  transform: scale(1.35);
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 0 8px rgba(255,255,255,.2);
+}
+
+/* ══ stickyヘッダーにブラー ══ */
+th.corner,
+th.hdr-def,
+th.hdr-atk {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(26,37,53,.85);
+}
+th.corner { background: rgba(26,37,53,.95); }
 table.ct.grayout tr.row-dim th.hdr-atk { opacity: .55; }
 table.ct.grayout tr.row-dim td.cell    { opacity: .35; filter: saturate(.3); }
 table.ct.grayout th.col-dim            { opacity: .55; }
