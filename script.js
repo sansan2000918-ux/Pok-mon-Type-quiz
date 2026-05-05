@@ -101,6 +101,12 @@ function updateToggleAllBtn() {
 function toggleAllTypes() {
   if (selectedTypes.length > 0) {
     selectedTypes.length = 0;
+    // 全解除時はグレーアウトモードに戻す
+    if (hideUnsel) {
+      hideUnsel = false;
+      grayout   = false;
+      document.getElementById('btnFilter').textContent = 'グレーアウト';
+    }
   } else {
     for (var i = 0; i < TYPES.length; i++) selectedTypes.push(TYPES[i]);
   }
@@ -156,13 +162,13 @@ function renderChart() {
   // 選択数に応じたステップ式サイズ（参照版ロジック）
   var baseCell, selCell;
   if (n === 0) {
-    baseCell = 30; selCell = 30;  // 全解除時は均一
+    baseCell = 36; selCell = 36;  // 全解除時は均一
   } else if (n >= 8) {
-    baseCell = 22; selCell = 44;
+    baseCell = 30; selCell = 52;
   } else if (n >= 4) {
-    baseCell = 28; selCell = 54;
+    baseCell = 36; selCell = 62;
   } else {
-    baseCell = 36; selCell = 64;
+    baseCell = 44; selCell = 72;
   }
 
   // 全18列を画面内に収めるための動的列幅（600px以上の画面のみ）
