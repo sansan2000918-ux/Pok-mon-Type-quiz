@@ -170,7 +170,7 @@ function renderChart() {
   var wrap = document.getElementById('chartTableWrap');
   var wrapW = wrap.clientWidth - 20; // スクロールバー分を引く
   var isBigScreen = wrapW >= 580;
-  var dynColW = isBigScreen ? Math.max(22, Math.floor((wrapW - cornerW) / TYPES.length)) : 30;
+  var dynColW = isBigScreen ? Math.max(32, Math.floor((wrapW - cornerW) / TYPES.length)) : 36;
 
   var thead = document.createElement('thead');
   var hr = document.createElement('tr');
